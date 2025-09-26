@@ -2,7 +2,7 @@
     "$schema": "https://schema.railpack.com",
     "steps": {
         "install": {
-            "commands": ["bun install"]
+            "commands": ["pwd", "ls -la", "bun --version", "bun install"]
         },
         "build": {
             "inputs": [{ "step": "install" }],
