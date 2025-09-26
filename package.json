@@ -7,6 +7,7 @@
         "lint": "turbo run lint",
         "build:web": "turbo run build --filter=web",
         "start:web": "turbo run start --filter=web",
+        "start": "turbo run start",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "check-types": "turbo run check-types"
     },
