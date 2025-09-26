@@ -19,6 +19,12 @@
         },
         "start": {
             "dependsOn": ["^start"]
+        },
+        "cf:build": {
+            "dependsOn": ["^cf:build"]
+        },
+        "cf:deploy": {
+            "dependsOn": ["^cf:deploy"]
         }
     }
 }

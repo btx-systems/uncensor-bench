@@ -55,7 +55,7 @@ function biasIndexToText(biasIndex: number): string {
     return "Strongly Left";
 }
 
-export function CensorshipChip({ type }: { type: string }) {
+function CensorshipChip({ type }: { type: string }) {
     return (
         <div className="text-sm text-muted-foreground bg-muted rounded-md px-2 py-1 border border-border text-center w-16">
             {formatCapitalizedText(type)}
@@ -63,7 +63,7 @@ export function CensorshipChip({ type }: { type: string }) {
     );
 }
 
-export function BiasChip({ biasIndex }: { biasIndex: number }) {
+function BiasChip({ biasIndex }: { biasIndex: number }) {
     return (
         <div className="text-sm text-muted-foreground bg-muted rounded-md px-2 py-1 border border-border text-center w-32">
             {biasIndexToText(biasIndex)}

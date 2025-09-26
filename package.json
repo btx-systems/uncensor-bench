@@ -9,6 +9,8 @@
         "start:web": "turbo run start --filter=web",
         "start": "turbo run start",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "cf:build": "turbo run cf:build",
+        "cf:deploy": "turbo run cf:deploy",
         "check-types": "turbo run check-types"
     },
     "devDependencies": {
