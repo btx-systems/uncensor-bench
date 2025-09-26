@@ -2,14 +2,14 @@
     "$schema": "https://schema.railpack.com",
     "steps": {
         "install": {
-            "commands": ["npm install"]
+            "commands": ["bun install"]
         },
         "build": {
             "inputs": [{ "step": "install" }],
-            "commands": ["npm run build:web"]
+            "commands": ["bun run build:web"]
         }
     },
     "deploy": {
-        "startCommand": "npm run start:web"
+        "startCommand": "bun run start:web"
     }
 }
