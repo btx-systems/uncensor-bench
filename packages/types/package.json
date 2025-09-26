@@ -1,0 +1,9 @@
+{
+	"name": "@repo/types",
+	"dependencies": {
+		"zod": "^4.1.11"
+	},
+	"exports": {
+		".": "./src/index.ts"
+	}
+}
