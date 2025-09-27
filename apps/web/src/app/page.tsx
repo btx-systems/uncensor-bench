@@ -7,6 +7,7 @@ import CensorShipTable from "@/components/CensorShipTable";
 import BiasChart from "@/components/BiasChart";
 import Link from "next/link";
 import { FaXTwitter } from "react-icons/fa6";
+import BiasTable from "@/components/BiasTable";
 
 export default async function Home() {
     const summaries = await db.query.summaries.findMany();
@@ -48,6 +49,7 @@ export default async function Home() {
                     </p>
                 </div>
                 <BiasChart data={data} />
+                <BiasTable data={data} />
             </div>
             <div className="w-full h-24 bg-muted">
                 <div className="w-full h-full flex flex-col gap-2 items-center justify-center">
