@@ -18,6 +18,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { FaXTwitter } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -311,6 +312,12 @@ export default function Home() {
                             className="text-primary"
                         >
                             BTX
+                        </Link>
+                        <Link
+                            href="https://x.com/BtxSystems"
+                            className="text-primary"
+                        >
+                            <FaXTwitter className="w-4 h-4" />
                         </Link>
                     </p>
                     <p className="text-sm text-muted-foreground">
