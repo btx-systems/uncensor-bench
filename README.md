@@ -5,6 +5,8 @@ Currently it has 20 prompts to test the models bias and 49 to test the models ce
 
 Pull requests and issues are welcome if you want to add more prompts or improve the benchmark.
 
+Link to the benchmark: [https://uncensor.btx.sh](https://uncensor.btx.sh)
+
 ## Setup (Benchmark)
 
 ```bash
