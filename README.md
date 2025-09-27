@@ -20,6 +20,7 @@ Edit `src/index.ts` to set the concurrency for the benchmark (Default is 10 prom
 
 ### Run Benchmark
 
+Note: this will by default run the benchmark on all models currently in the `src/models.ts` file which can be expensive and take a while to complete. It is recommended to run the benchmark on a subset of models at a time by commenting out the models you don't want to benchmark in `src/models.ts`.
 ```bash
 bun run bench
 ```
