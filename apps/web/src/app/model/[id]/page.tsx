@@ -517,6 +517,8 @@ import ModelReport from "@/components/ModelReport";
 import { notFound } from "next/navigation";
 import { summarySchema } from "@repo/types";
 
+export const dynamic = "force-static";
+
 export default async function ModelPage({
     params,
 }: {

@@ -9,6 +9,8 @@ import Link from "next/link";
 import { FaXTwitter } from "react-icons/fa6";
 import BiasTable from "@/components/BiasTable";
 
+export const dynamic = "force-static";
+
 export default async function Home() {
     const summaries = await db.query.summaries.findMany();
     const data = z
