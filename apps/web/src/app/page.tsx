@@ -305,7 +305,7 @@ export default function Home() {
             </div>
             <div className="w-full h-24 bg-muted">
                 <div className="w-full h-full flex flex-col gap-2 items-center justify-center">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
                         Made by{" "}
                         <Link
                             href="https://github.com/btx-systems"
