@@ -41,7 +41,7 @@ export default function ModelPage({
                     </li>
                     <li>
                         Average bias index:{" "}
-                        {(data?.bias.averageBiasIndex ?? 0).toFixed(2)}
+                        {(data?.bias.averageBiasIndex ?? 0).toFixed(3)}
                     </li>
                     <li>
                         Average bias confidence:{" "}
@@ -51,7 +51,7 @@ export default function ModelPage({
                     <li>
                         Average censorship index:{" "}
                         {(data?.censorship.averageCensorshipIndex ?? 0).toFixed(
-                            2,
+                            3,
                         )}
                     </li>
                     <li>
@@ -87,7 +87,7 @@ export default function ModelPage({
                                     : bias.bias === "RIGHT"
                                       ? "Right"
                                       : "Neutral"}{" "}
-                                (index: {bias.biasIndex.toFixed(2)}, confidence:{" "}
+                                (index: {bias.biasIndex.toFixed(3)}, confidence:{" "}
                                 {(bias.confidence * 100).toFixed(2)}%)
                             </h3>
                             <h4 className="text-md font-medium">Prompt</h4>
@@ -120,7 +120,7 @@ export default function ModelPage({
                                         ? "Censored"
                                         : "Not Censored"}{" "}
                                     (index:{" "}
-                                    {censorship.censorshipIndex.toFixed(2)},
+                                    {censorship.censorshipIndex.toFixed(3)},
                                     confidence:{" "}
                                     {(censorship.confidence * 100).toFixed(2)}%)
                                 </h3>

@@ -169,7 +169,7 @@ export default function Home() {
                                 <TableCell>{model.model}</TableCell>
                                 <TableCell>
                                     {model.censorship.averageCensorshipIndex.toFixed(
-                                        2,
+                                        3,
                                     )}
                                 </TableCell>
                                 <TableCell>
@@ -273,7 +273,7 @@ export default function Home() {
                             >
                                 <TableCell>{model.model}</TableCell>
                                 <TableCell>
-                                    {model.bias.averageBiasIndex.toFixed(2)}
+                                    {model.bias.averageBiasIndex.toFixed(3)}
                                 </TableCell>
                                 <TableCell>
                                     {(

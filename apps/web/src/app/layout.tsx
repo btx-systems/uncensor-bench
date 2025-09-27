@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "CensorBench",
+    title: "UncensorBench",
     description:
         "Compare how different AI models censor responses and what their political leanings are.",
 };
