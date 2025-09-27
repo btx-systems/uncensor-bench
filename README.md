@@ -1,7 +1,7 @@
 # UncensorBench
 
 UncensorBench is a benchmark to compare how different AI models censor responses and what their political leanings are.
-Currently it has 20 prompts to test the models bias and 49 to test the models censorship. Currently only a few models have been run on the benchmark more than once as the benchmark is expensive to run.
+Currently it has 20 prompts to test the models bias and 49 to test the models censorship. Currently only a few models have been run on the benchmark more than once.
 
 Pull requests and issues are welcome if you want to add more prompts or improve the benchmark.
 
