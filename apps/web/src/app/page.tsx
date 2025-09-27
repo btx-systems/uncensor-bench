@@ -19,6 +19,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const chartConfig = {
     censorship: {
@@ -76,220 +77,253 @@ export default function Home() {
     const router = useRouter();
 
     return (
-        <div className="w-full max-w-6xl mx-auto my-8 flex flex-col gap-4">
-            <div>
-                <h1 className="text-3xl font-bold">UncensorBench</h1>
-                <p className="text-sm text-muted-foreground">
-                    Compare how different AI models censor responses and what
-                    their political leanings are.
-                </p>
-            </div>
-            <Separator />
-            <div>
-                <h2 className="text-xl font-bold">Censorship Index</h2>
-                <p className="text-sm text-muted-foreground">
-                    The Censorship Index is a measure of how much a model
-                    censors responses. 0 means the model does not censor any
-                    responses, 1 means the model fully censors and refuses to
-                    respond to all responses.
-                </p>
-            </div>
-            <ChartContainer
-                config={chartConfig}
-                className="min-h-[200px] w-full"
-            >
-                <BarChart
-                    accessibilityLayer
-                    data={data?.models
-                        .map((model) => ({
-                            name: model.model,
-                            censorship: model.censorship.averageCensorshipIndex,
-                        }))
-                        .sort((a, b) => b.censorship - a.censorship)}
+        <>
+            <div className="w-full max-w-6xl mx-auto my-8 flex flex-col gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold">UncensorBench</h1>
+                    <p className="text-sm text-muted-foreground">
+                        Compare how different AI models censor responses and
+                        what their political leanings are.
+                    </p>
+                </div>
+                <Separator />
+                <div>
+                    <h2 className="text-xl font-bold">Censorship Index</h2>
+                    <p className="text-sm text-muted-foreground">
+                        The Censorship Index is a measure of how much a model
+                        censors responses. 0 means the model does not censor any
+                        responses, 1 means the model fully censors and refuses
+                        to respond to all responses.
+                    </p>
+                </div>
+                <ChartContainer
+                    config={chartConfig}
+                    className="min-h-[200px] w-full"
                 >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                        dataKey="name"
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                        angle={-45}
-                        textAnchor="end"
-                        height={120}
-                        tickFormatter={(value) => truncateLabel(value, 15)}
-                    />
-                    <YAxis
-                        dataKey="censorship"
-                        domain={[0, 1]}
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                        label={{
-                            value: "Censorship Index",
-                            position: "insideLeft",
-                            angle: -90,
-                            style: {
-                                fontSize: 16,
-                                fontWeight: 600,
-                            },
-                        }}
-                    />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="censorship" fill="#2563eb" radius={4} />
-                </BarChart>
-            </ChartContainer>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-3xl">Model</TableHead>
-                        <TableHead className="w-64">Censorship Index</TableHead>
-                        <TableHead className="w-64">
-                            Censorship Index Confidence
-                        </TableHead>
-                        <TableHead className="text-right">
-                            Main Censorship
-                        </TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {data?.models
-                        .sort(
-                            (a, b) =>
-                                b.censorship.averageCensorshipIndex -
-                                a.censorship.averageCensorshipIndex,
-                        )
-                        .map((model) => (
-                            <TableRow
-                                key={model.model}
-                                className="cursor-pointer"
-                                onClick={() => {
-                                    router.push(`/model/${model.id}`);
-                                }}
-                            >
-                                <TableCell>{model.model}</TableCell>
-                                <TableCell>
-                                    {model.censorship.averageCensorshipIndex.toFixed(
-                                        3,
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    {(
-                                        model.censorship.averageConfidence * 100
-                                    ).toFixed(1)}
-                                    %
-                                </TableCell>
-                                <TableCell className="text-right flex justify-end">
-                                    {model.censorship.averageCensorshipIndex >=
-                                    0.05 ? (
-                                        <CensorshipChip
-                                            type={model.censorship.types[0]}
+                    <BarChart
+                        accessibilityLayer
+                        data={data?.models
+                            .map((model) => ({
+                                name: model.model,
+                                censorship:
+                                    model.censorship.averageCensorshipIndex,
+                            }))
+                            .sort((a, b) => b.censorship - a.censorship)}
+                    >
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                            dataKey="name"
+                            tickLine={false}
+                            tickMargin={10}
+                            axisLine={false}
+                            angle={-45}
+                            textAnchor="end"
+                            height={120}
+                            tickFormatter={(value) => truncateLabel(value, 15)}
+                        />
+                        <YAxis
+                            dataKey="censorship"
+                            domain={[0, 1]}
+                            tickLine={false}
+                            tickMargin={10}
+                            axisLine={false}
+                            label={{
+                                value: "Censorship Index",
+                                position: "insideLeft",
+                                angle: -90,
+                                style: {
+                                    fontSize: 16,
+                                    fontWeight: 600,
+                                },
+                            }}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="censorship" fill="#2563eb" radius={4} />
+                    </BarChart>
+                </ChartContainer>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-3xl">Model</TableHead>
+                            <TableHead className="w-64">
+                                Censorship Index
+                            </TableHead>
+                            <TableHead className="w-64">
+                                Censorship Index Confidence
+                            </TableHead>
+                            <TableHead className="text-right">
+                                Main Censorship
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data?.models
+                            .sort(
+                                (a, b) =>
+                                    b.censorship.averageCensorshipIndex -
+                                    a.censorship.averageCensorshipIndex,
+                            )
+                            .map((model) => (
+                                <TableRow
+                                    key={model.model}
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                        router.push(`/model/${model.id}`);
+                                    }}
+                                >
+                                    <TableCell>{model.model}</TableCell>
+                                    <TableCell>
+                                        {model.censorship.averageCensorshipIndex.toFixed(
+                                            3,
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {(
+                                            model.censorship.averageConfidence *
+                                            100
+                                        ).toFixed(1)}
+                                        %
+                                    </TableCell>
+                                    <TableCell className="text-right flex justify-end">
+                                        {model.censorship
+                                            .averageCensorshipIndex >= 0.05 ? (
+                                            <CensorshipChip
+                                                type={model.censorship.types[0]}
+                                            />
+                                        ) : (
+                                            <CensorshipChip type="None" />
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                    </TableBody>
+                </Table>
+                <Separator />
+                <div>
+                    <h2 className="text-xl font-bold">Bias Index</h2>
+                    <p className="text-sm text-muted-foreground">
+                        The Bias Index is a measure of how much a model leans
+                        towards a particular political ideology. -1 means the
+                        model is strongly right-wing, 0 means the model is
+                        center / neutral, and 1 means the model is strongly
+                        left-wing.
+                    </p>
+                </div>
+                <ChartContainer
+                    config={biasChartConfig}
+                    className="min-h-[200px] w-full"
+                >
+                    <BarChart
+                        data={data?.models
+                            .map((model) => ({
+                                name: model.model,
+                                bias: model.bias.averageBiasIndex,
+                            }))
+                            .sort((a, b) => b.bias - a.bias)}
+                    >
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                            dataKey="name"
+                            tickLine={false}
+                            tickMargin={20}
+                            axisLine={false}
+                            angle={-45}
+                            textAnchor="end"
+                            height={120}
+                            tickFormatter={(value) => truncateLabel(value, 15)}
+                        />
+                        <YAxis
+                            dataKey="bias"
+                            domain={[-1, 1]}
+                            tickLine={false}
+                            tickMargin={10}
+                            axisLine={false}
+                            label={{
+                                value: "Bias Index",
+                                position: "insideLeft",
+                                angle: -90,
+                                style: {
+                                    fontSize: 16,
+                                    fontWeight: 600,
+                                },
+                            }}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="bias" fill="#2563eb" radius={4} />
+                    </BarChart>
+                </ChartContainer>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-3xl">Model</TableHead>
+                            <TableHead className="w-64">Bias Index</TableHead>
+                            <TableHead className="w-64">
+                                Bias Index Confidence
+                            </TableHead>
+                            <TableHead className="text-right">
+                                Main Bias
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data?.models
+                            .sort(
+                                (a, b) =>
+                                    b.bias.averageBiasIndex -
+                                    a.bias.averageBiasIndex,
+                            )
+                            .map((model) => (
+                                <TableRow
+                                    key={model.model}
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                        router.push(`/model/${model.id}`);
+                                    }}
+                                >
+                                    <TableCell>{model.model}</TableCell>
+                                    <TableCell>
+                                        {model.bias.averageBiasIndex.toFixed(3)}
+                                    </TableCell>
+                                    <TableCell>
+                                        {(
+                                            model.bias.averageConfidence * 100
+                                        ).toFixed(1)}
+                                        %
+                                    </TableCell>
+                                    <TableCell className="text-right flex justify-end">
+                                        <BiasChip
+                                            biasIndex={
+                                                model.bias.averageBiasIndex
+                                            }
                                         />
-                                    ) : (
-                                        <CensorshipChip type="None" />
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                </TableBody>
-            </Table>
-            <Separator />
-            <div>
-                <h2 className="text-xl font-bold">Bias Index</h2>
-                <p className="text-sm text-muted-foreground">
-                    The Bias Index is a measure of how much a model leans
-                    towards a particular political ideology. -1 means the model
-                    is strongly right-wing, 0 means the model is center /
-                    neutral, and 1 means the model is strongly left-wing.
-                </p>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                    </TableBody>
+                </Table>
             </div>
-            <ChartContainer
-                config={biasChartConfig}
-                className="min-h-[200px] w-full"
-            >
-                <BarChart
-                    data={data?.models
-                        .map((model) => ({
-                            name: model.model,
-                            bias: model.bias.averageBiasIndex,
-                        }))
-                        .sort((a, b) => b.bias - a.bias)}
-                >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                        dataKey="name"
-                        tickLine={false}
-                        tickMargin={20}
-                        axisLine={false}
-                        angle={-45}
-                        textAnchor="end"
-                        height={120}
-                        tickFormatter={(value) => truncateLabel(value, 15)}
-                    />
-                    <YAxis
-                        dataKey="bias"
-                        domain={[-1, 1]}
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                        label={{
-                            value: "Bias Index",
-                            position: "insideLeft",
-                            angle: -90,
-                            style: {
-                                fontSize: 16,
-                                fontWeight: 600,
-                            },
-                        }}
-                    />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="bias" fill="#2563eb" radius={4} />
-                </BarChart>
-            </ChartContainer>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-3xl">Model</TableHead>
-                        <TableHead className="w-64">Bias Index</TableHead>
-                        <TableHead className="w-64">
-                            Bias Index Confidence
-                        </TableHead>
-                        <TableHead className="text-right">Main Bias</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {data?.models
-                        .sort(
-                            (a, b) =>
-                                b.bias.averageBiasIndex -
-                                a.bias.averageBiasIndex,
-                        )
-                        .map((model) => (
-                            <TableRow
-                                key={model.model}
-                                className="cursor-pointer"
-                                onClick={() => {
-                                    router.push(`/model/${model.id}`);
-                                }}
-                            >
-                                <TableCell>{model.model}</TableCell>
-                                <TableCell>
-                                    {model.bias.averageBiasIndex.toFixed(3)}
-                                </TableCell>
-                                <TableCell>
-                                    {(
-                                        model.bias.averageConfidence * 100
-                                    ).toFixed(1)}
-                                    %
-                                </TableCell>
-                                <TableCell className="text-right flex justify-end">
-                                    <BiasChip
-                                        biasIndex={model.bias.averageBiasIndex}
-                                    />
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                </TableBody>
-            </Table>
-        </div>
+            <div className="w-full h-24 bg-muted">
+                <div className="w-full h-full flex flex-col gap-2 items-center justify-center">
+                    <p className="text-sm text-muted-foreground">
+                        Made by{" "}
+                        <Link
+                            href="https://github.com/btx-systems"
+                            className="text-primary"
+                        >
+                            BTX
+                        </Link>
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                        Source code on{" "}
+                        <Link
+                            href="https://github.com/btx-systems/uncensor-bench"
+                            className="text-primary"
+                        >
+                            GitHub
+                        </Link>
+                    </p>
+                </div>
+            </div>
+        </>
     );
 }
