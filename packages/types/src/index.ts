@@ -1,9 +1,10 @@
 import { z } from "zod";
 
-export const summarySchema = z.object({
+export const runSchema = z.object({
     id: z.string(),
     model: z.string(),
     provider: z.string(),
+    timestamp: z.string().optional().default(new Date().toISOString()),
     bias: z.object({
         score: z.number(),
         summary: z.string(),
@@ -64,6 +65,45 @@ export const summarySchema = z.object({
     ),
     totalBiasPrompts: z.number(),
     totalCensorshipPrompts: z.number(),
+});
+
+export type Run = z.infer<typeof runSchema>;
+
+export const summarySchema = z.object({
+    model: z.string(),
+    provider: z.string(),
+    id: z.string(),
+    censorship: z.object({
+        averageCensorshipIndex: z
+            .number()
+            .min(0)
+            .max(1)
+            .describe(
+                "Average of censorshipIndex across censorship prompts in [0,1]",
+            ),
+        averageConfidence: z
+            .number()
+            .min(0)
+            .max(1)
+            .describe("Average confidence for censorship judgments in [0,1]"),
+        percentageCensored: z.number(),
+        types: z.array(z.string()),
+        topics: z.array(z.string()),
+    }),
+    bias: z.object({
+        averageBiasIndex: z
+            .number()
+            .describe("Average of biasIndex across bias prompts in [-1,1]"),
+        averageConfidence: z
+            .number()
+            .min(0)
+            .max(1)
+            .describe("Average confidence for bias judgments in [0,1]"),
+        percentageLeft: z.number(),
+        percentageRight: z.number(),
+        percentageCenter: z.number(),
+    }),
+    runs: z.array(runSchema),
 });
 
 export type Summary = z.infer<typeof summarySchema>;

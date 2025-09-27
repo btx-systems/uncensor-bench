@@ -1,8 +1,13 @@
 import path from "node:path";
 import { create } from "xmlbuilder2";
 import Logger from "./logger";
-import { generateSummary } from "./markdown";
-import { judgeBias, judgeCensorship, models, openai } from "./models";
+import {
+    judgeBias,
+    judgeCensorship,
+    models,
+    openai,
+    type Model,
+} from "./models";
 import {
     biasToNumber,
     censorshipToNumber,
@@ -10,7 +15,7 @@ import {
     type Prompt,
 } from "./prompts";
 import { z } from "zod";
-import { type Summary, summarySchema } from "@repo/types";
+import { type Run, runSchema, summarySchema, type Summary } from "@repo/types";
 import { generateObject, generateText } from "ai";
 import fs from "node:fs/promises";
 import { openrouter } from "@openrouter/ai-sdk-provider";
@@ -25,28 +30,128 @@ Logger.info(`Prompt concurrency set to ${promptConcurrency}`);
 // create results directory if it doesn't exist
 await fs.mkdir(path.join(process.cwd(), "results"), { recursive: true });
 
-async function benchmarkModel(model: (typeof models)[number]) {
-    const biases: {
-        bias: "LEFT" | "RIGHT" | "CENTER";
-        biasIndex: number;
-        confidence: number;
-        rationale?: string;
-        prompt: Prompt;
-        response: string;
-    }[] = [];
-    const censorships: {
-        censorship: "CENSORED" | "NOT_CENSORED";
-        censorshipIndex: number;
-        confidence: number;
-        rationale?: string;
-        prompt: Prompt;
-        response: string;
-    }[] = [];
+type BiasEvaluation = {
+    bias: "LEFT" | "RIGHT" | "CENTER";
+    biasIndex: number;
+    confidence: number;
+    rationale?: string;
+    prompt: Prompt;
+    response: string;
+};
+
+type CensorshipEvaluation = {
+    censorship: "CENSORED" | "NOT_CENSORED";
+    censorshipIndex: number;
+    confidence: number;
+    rationale?: string;
+    prompt: Prompt;
+    response: string;
+};
+
+function createEmptySummary(model: Model): Summary {
+    return {
+        model: model.name,
+        provider: model.provider,
+        id: model.id,
+        bias: {
+            averageBiasIndex: 0,
+            averageConfidence: 0,
+            percentageLeft: 0,
+            percentageRight: 0,
+            percentageCenter: 0,
+        },
+        censorship: {
+            averageCensorshipIndex: 0,
+            averageConfidence: 0,
+            percentageCensored: 0,
+            types: [],
+            topics: [],
+        },
+        runs: [],
+    } satisfies Summary;
+}
+
+function recomputeSummaryMetrics(summary: Summary) {
+    if (summary.runs.length === 0) {
+        summary.bias.averageBiasIndex = 0;
+        summary.bias.averageConfidence = 0;
+        summary.bias.percentageLeft = 0;
+        summary.bias.percentageRight = 0;
+        summary.bias.percentageCenter = 0;
+        summary.censorship.averageCensorshipIndex = 0;
+        summary.censorship.averageConfidence = 0;
+        summary.censorship.percentageCensored = 0;
+        summary.censorship.types = [];
+        summary.censorship.topics = [];
+        return;
+    }
+
+    const runCount = summary.runs.length;
+
+    summary.bias.averageBiasIndex =
+        summary.runs.reduce(
+            (acc, item) => acc + item.bias.averageBiasIndex,
+            0,
+        ) / runCount;
+    summary.bias.averageConfidence =
+        summary.runs.reduce(
+            (acc, item) => acc + item.bias.averageConfidence,
+            0,
+        ) / runCount;
+    summary.bias.percentageLeft =
+        summary.runs.reduce((acc, item) => acc + item.bias.percentageLeft, 0) /
+        runCount;
+    summary.bias.percentageRight =
+        summary.runs.reduce((acc, item) => acc + item.bias.percentageRight, 0) /
+        runCount;
+    summary.bias.percentageCenter =
+        summary.runs.reduce(
+            (acc, item) => acc + item.bias.percentageCenter,
+            0,
+        ) / runCount;
+
+    summary.censorship.averageCensorshipIndex =
+        summary.runs.reduce(
+            (acc, item) => acc + item.censorship.averageCensorshipIndex,
+            0,
+        ) / runCount;
+    summary.censorship.averageConfidence =
+        summary.runs.reduce(
+            (acc, item) => acc + item.censorship.averageConfidence,
+            0,
+        ) / runCount;
+    summary.censorship.percentageCensored =
+        summary.runs.reduce(
+            (acc, item) => acc + item.censorship.percentageCensored,
+            0,
+        ) / runCount;
+    summary.censorship.types = summary.runs.flatMap(
+        (item) => item.censorship.types,
+    );
+    summary.censorship.topics = summary.runs.flatMap(
+        (item) => item.censorship.topics,
+    );
+
+    summary.censorship.types = summary.censorship.types.filter(
+        (type, index, self) => self.indexOf(type) === index,
+    );
+    summary.censorship.topics = summary.censorship.topics.filter(
+        (topic, index, self) => self.indexOf(topic) === index,
+    );
+}
+
+async function executeModelRun(model: Model, runIndex: number): Promise<Run> {
+    const biases: BiasEvaluation[] = [];
+    const censorships: CensorshipEvaluation[] = [];
 
     const promptQueue = [...prompts];
     const workerCount = Math.min(
         promptConcurrency,
         promptQueue.length === 0 ? 1 : promptQueue.length,
+    );
+
+    Logger.info(
+        `Benchmarking model: ${model.name} run ${runIndex + 1}/${model.runCount} with ${workerCount} workers`,
     );
 
     const workers = Array.from({ length: workerCount }, () =>
@@ -102,16 +207,14 @@ async function benchmarkModel(model: (typeof models)[number]) {
         })(),
     );
 
-    Logger.info(
-        `Benchmarking model: ${model.name} with ${workerCount} workers`,
-    );
-
     const start = performance.now();
     await Promise.all(workers);
-
     const end = performance.now();
+
     Logger.info(
-        `Benchmarking model: ${model.name} with ${workerCount} workers took ${(end - start) / 1000}s`,
+        `Benchmarking model: ${model.name} run ${runIndex + 1}/${model.runCount} with ${workerCount} workers took ${(
+            (end - start) / 1000
+        ).toFixed(2)}s`,
     );
 
     const biasScore = biases.reduce(
@@ -145,11 +248,12 @@ async function benchmarkModel(model: (typeof models)[number]) {
               censorships.length
             : 0;
 
-    const averageBiasScore = biasScore / biases.length;
-    const averageCensorshipScore = censorshipScore / censorships.length;
+    const averageBiasScore = biases.length > 0 ? biasScore / biases.length : 0;
+    const averageCensorshipScore =
+        censorships.length > 0 ? censorshipScore / censorships.length : 0;
 
     Logger.info(
-        `Model: ${model.name}, Average Bias Score: ${averageBiasScore}, Average Censorship Score: ${averageCensorshipScore}, Avg Bias Index: ${averageBiasIndex.toFixed(3)}, Avg Censorship Index: ${averageCensorshipIndex.toFixed(3)}, Avg Bias Conf: ${averageBiasConfidence.toFixed(3)}, Avg Censor Conf: ${averageCensorshipConfidence.toFixed(3)}`,
+        `Model: ${model.name} run ${runIndex + 1}/${model.runCount}, Average Bias Score: ${averageBiasScore}, Average Censorship Score: ${averageCensorshipScore}, Avg Bias Index: ${averageBiasIndex.toFixed(3)}, Avg Censorship Index: ${averageCensorshipIndex.toFixed(3)}, Avg Bias Conf: ${averageBiasConfidence.toFixed(3)}, Avg Censor Conf: ${averageCensorshipConfidence.toFixed(3)}`,
     );
 
     const biasXml = create()
@@ -184,7 +288,7 @@ async function benchmarkModel(model: (typeof models)[number]) {
                 content: `
 # Biases
 ${biasXml}
-				`,
+			`,
             },
         ],
         model: openrouter("x-ai/grok-4-fast:free"),
@@ -228,34 +332,47 @@ ${biasXml}
                 content: `
 # Censorships
 ${censorshipXml}
-				`,
+			`,
             },
         ],
         model: openai("gpt-5-mini"),
     });
 
     const percentageCensored =
-        censorships.reduce(
-            (acc, censorship) =>
-                acc + (censorship.censorship === "CENSORED" ? 1 : 0),
-            0,
-        ) / censorships.length;
+        censorships.length > 0
+            ? censorships.reduce(
+                  (acc, censorship) =>
+                      acc + (censorship.censorship === "CENSORED" ? 1 : 0),
+                  0,
+              ) / censorships.length
+            : 0;
     const percentageLeft =
-        biases.reduce((acc, bias) => acc + (bias.bias === "LEFT" ? 1 : 0), 0) /
-        biases.length;
+        biases.length > 0
+            ? biases.reduce(
+                  (acc, bias) => acc + (bias.bias === "LEFT" ? 1 : 0),
+                  0,
+              ) / biases.length
+            : 0;
     const percentageRight =
-        biases.reduce((acc, bias) => acc + (bias.bias === "RIGHT" ? 1 : 0), 0) /
-        biases.length;
+        biases.length > 0
+            ? biases.reduce(
+                  (acc, bias) => acc + (bias.bias === "RIGHT" ? 1 : 0),
+                  0,
+              ) / biases.length
+            : 0;
     const percentageCenter =
-        biases.reduce(
-            (acc, bias) => acc + (bias.bias === "CENTER" ? 1 : 0),
-            0,
-        ) / biases.length;
+        biases.length > 0
+            ? biases.reduce(
+                  (acc, bias) => acc + (bias.bias === "CENTER" ? 1 : 0),
+                  0,
+              ) / biases.length
+            : 0;
 
-    const structuredSummary = summarySchema.parse({
+    return runSchema.parse({
         id: model.id,
         model: model.name,
         provider: model.provider,
+        timestamp: new Date().toISOString(),
         bias: {
             score: biasScore,
             summary: biasSummary.object.summary,
@@ -296,26 +413,50 @@ ${censorshipXml}
         })),
         totalBiasPrompts: biases.length,
         totalCensorshipPrompts: censorships.length,
-    } satisfies Summary);
+    } satisfies Run);
+}
 
-    const summary = generateSummary(structuredSummary);
+async function persistRunsForModel(model: Model, newRuns: Run[]) {
+    if (newRuns.length === 0) {
+        return;
+    }
 
-    const summaryFilename = `${model.name}-${new Date().toISOString()}.md`;
-    const structuredSummaryFilename = `${model.name}-${new Date().toISOString()}.json`;
+    const summaryFilename = `${model.id}.json`;
+    const summaryPath = path.join(process.cwd(), "results", summaryFilename);
 
-    await fs.writeFile(
-        path.join(process.cwd(), "results", summaryFilename),
-        summary,
-    );
+    let summaryData: Summary | null = null;
 
-    await fs.writeFile(
-        path.join(process.cwd(), "results", structuredSummaryFilename),
-        JSON.stringify(structuredSummary, null, 2),
-    );
+    if (await fs.exists(summaryPath)) {
+        const existingSummary = await fs.readFile(summaryPath, "utf-8");
+        try {
+            summaryData = summarySchema.parse(JSON.parse(existingSummary));
+        } catch (error) {
+            Logger.error(
+                `Error parsing existing summary: ${error}, Creating new summary (Will overwrite existing summary)`,
+            );
+            summaryData = null;
+        }
+    }
 
-    Logger.info(
-        `Results saved to ${path.join(process.cwd(), "results", summaryFilename)} and ${path.join(process.cwd(), "results", structuredSummaryFilename)}`,
-    );
+    if (!summaryData) {
+        summaryData = createEmptySummary(model);
+    }
+
+    summaryData.runs.push(...newRuns);
+    recomputeSummaryMetrics(summaryData);
+
+    summaryData = summarySchema.parse(summaryData);
+
+    await fs.writeFile(summaryPath, JSON.stringify(summaryData, null, 2));
+
+    Logger.info(`Results saved to ${summaryPath}`);
+}
+
+async function benchmarkModel(model: Model) {
+    for (let runIndex = 0; runIndex < model.runCount; runIndex += 1) {
+        const run = await executeModelRun(model, runIndex);
+        await persistRunsForModel(model, [run]);
+    }
 }
 
 const modelQueue = [...models];

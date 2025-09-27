@@ -26,161 +26,183 @@ export type ModelProvider =
 export type Model = {
     name: string;
     id: string;
+    runCount: number;
     model: LanguageModel;
     provider: ModelProvider;
 };
 
 export const models: Model[] = [
-    {
-        name: "Grok 4 Fast",
-        id: "grok-4-fast",
-        model: openrouter("x-ai/grok-4-fast:free"),
-        provider: "xAI",
-    },
-    {
-        name: "Qwen3 235B A22B Instruct 2507",
-        id: "qwen3-235b-a22b-2507",
-        model: openrouter("qwen/qwen3-235b-a22b-2507"),
-        provider: "qwen-oss",
-    },
-    {
-        name: "Qwen3 235B A22B Thinking 2507",
-        id: "qwen3-235b-a22b-thinking-2507",
-        model: openrouter("qwen/qwen3-235b-a22b-thinking-2507"),
-        provider: "qwen-oss",
-    },
+    // {
+    //     name: "Grok 4 Fast",
+    //     runCount: 2,
+    //     id: "grok-4-fast",
+    //     model: openrouter("x-ai/grok-4-fast:free"),
+    //     provider: "xAI",
+    // },
+    // {
+    //     name: "Qwen3 235B A22B Instruct 2507",
+    //     runCount: 2,
+    //     id: "qwen3-235b-a22b-2507",
+    //     model: openrouter("qwen/qwen3-235b-a22b-2507"),
+    //     provider: "qwen-oss",
+    // },
+    // {
+    //     name: "Qwen3 235B A22B Thinking 2507",
+    //     runCount: 2,
+    //     id: "qwen3-235b-a22b-thinking-2507",
+    //     model: openrouter("qwen/qwen3-235b-a22b-thinking-2507"),
+    //     provider: "qwen-oss",
+    // },
     {
         name: "GPT 5",
+        runCount: 2,
         id: "gpt-5",
         model: openai("gpt-5"),
         provider: "openai",
     },
     {
         name: "GPT 5 Mini",
+        runCount: 2,
         id: "gpt-5-mini",
         model: openai("gpt-5-mini"),
         provider: "openai",
     },
-    {
-        name: "GPT 5 Nano",
-        id: "gpt-5-nano",
-        model: openai("gpt-5-nano"),
-        provider: "openai",
-    },
-    {
-        name: "GPT OSS 120B",
-        id: "gpt-oss-120b",
-        model: openrouter("openai/gpt-oss-120b"),
-        provider: "openai",
-    },
-    {
-        name: "o4-mini",
-        id: "o4-mini",
-        model: openai("o4-mini"),
-        provider: "openai",
-    },
-    {
-        name: "o3",
-        id: "o3",
-        model: openai("o3"),
-        provider: "openai",
-    },
-    {
-        name: "DeepSeek R1 0528",
-        id: "deepseek-r1-0528",
-        model: openrouter("deepseek/deepseek-r1-0528"),
-        provider: "deepseek-oss",
-    },
-    {
-        name: "Kimi K2 0905",
-        id: "kimi-k2-0905",
-        model: openRouter("moonshotai/kimi-k2-0905"),
-        provider: "moonshot-oss",
-    },
-    {
-        name: "DeepSeek V3.1 Terminus",
-        id: "deepseek-v3.1-terminus",
-        model: openrouter("deepseek/deepseek-v3.1-terminus"),
-        provider: "deepseek-oss",
-    },
-    {
-        name: "GLM 4.5",
-        id: "glm-4.5",
-        model: openrouter("z-ai/glm-4.5"),
-        provider: "glm-oss",
-    },
-    {
-        name: "GLM 4.5 (Reasoning)",
-        id: "glm-4.5-thinking",
-        model: openrouter("z-ai/glm-4.5", {
-            extraBody: {
-                reasoning: {
-                    enabled: true,
-                },
-            },
-        }),
-        provider: "glm-oss",
-    },
-    {
-        name: "GLM 4.5 Air",
-        id: "glm-4.5-air",
-        model: openrouter("z-ai/glm-4.5-air"),
-        provider: "glm-oss",
-    },
-    {
-        name: "GLM 4.5 Air (Reasoning)",
-        id: "glm-4.5-air-thinking",
-        model: openrouter("z-ai/glm-4.5-air", {
-            extraBody: {
-                reasoning: {
-                    enabled: true,
-                },
-            },
-        }),
-        provider: "glm-oss",
-    },
-    {
-        name: "Claude 4 Sonnet",
-        id: "claude-4-sonnet",
-        model: openrouter("anthropic/claude-sonnet-4"),
-        provider: "anthropic",
-    },
-    {
-        name: "Claude 4 Sonnet (Reasoning)",
-        id: "claude-4-sonnet-thinking",
-        model: openrouter("anthropic/claude-sonnet-4", {
-            extraBody: {
-                reasoning: {
-                    enabled: true,
-                },
-            },
-        }),
-        provider: "anthropic",
-    },
-    {
-        name: "Gemini 2.5 Pro",
-        id: "gemini-2.5-pro",
-        model: openrouter("google/gemini-2.5-pro"),
-        provider: "google",
-    },
-    {
-        name: "Gemini 2.5 Flash",
-        id: "gemini-2.5-flash",
-        model: openrouter("google/gemini-2.5-flash"),
-        provider: "google",
-    },
-    {
-        name: "Gemini 2.5 Flash (Reasoning)",
-        id: "gemini-2.5-flash-thinking",
-        model: openrouter("google/gemini-2.5-flash", {
-            extraBody: {
-                reasoning: {
-                    enabled: true,
-                },
-            },
-        }),
-        provider: "google",
-    },
+    // {
+    //     name: "GPT 5 Nano",
+    //     runCount: 2,
+    //     id: "gpt-5-nano",
+    //     model: openai("gpt-5-nano"),
+    //     provider: "openai",
+    // },
+    // {
+    //     name: "GPT OSS 120B",
+    //     runCount: 2,
+    //     id: "gpt-oss-120b",
+    //     model: openrouter("openai/gpt-oss-120b"),
+    //     provider: "openai",
+    // },
+    // {
+    //     name: "o4-mini",
+    //     runCount: 2,
+    //     id: "o4-mini",
+    //     model: openai("o4-mini"),
+    //     provider: "openai",
+    // },
+    // {
+    //     name: "o3",
+    //     runCount: 2,
+    //     id: "o3",
+    //     model: openai("o3"),
+    //     provider: "openai",
+    // },
+    // {
+    //     name: "DeepSeek R1 0528",
+    //     runCount: 2,
+    //     id: "deepseek-r1-0528",
+    //     model: openrouter("deepseek/deepseek-r1-0528"),
+    //     provider: "deepseek-oss",
+    // },
+    // {
+    //     name: "Kimi K2 0905",
+    //     runCount: 2,
+    //     id: "kimi-k2-0905",
+    //     model: openRouter("moonshotai/kimi-k2-0905"),
+    //     provider: "moonshot-oss",
+    // },
+    // {
+    //     name: "DeepSeek V3.1 Terminus",
+    //     runCount: 2,
+    //     id: "deepseek-v3.1-terminus",
+    //     model: openrouter("deepseek/deepseek-v3.1-terminus"),
+    //     provider: "deepseek-oss",
+    // },
+    // {
+    //     name: "GLM 4.5",
+    //     runCount: 2,
+    //     id: "glm-4.5",
+    //     model: openrouter("z-ai/glm-4.5"),
+    //     provider: "glm-oss",
+    // },
+    // {
+    //     name: "GLM 4.5 (Reasoning)",
+    //     runCount: 2,
+    //     id: "glm-4.5-thinking",
+    //     model: openrouter("z-ai/glm-4.5", {
+    //         extraBody: {
+    //             reasoning: {
+    //                 enabled: true,
+    //             },
+    //         },
+    //     }),
+    //     provider: "glm-oss",
+    // },
+    // {
+    //     name: "GLM 4.5 Air",
+    //     runCount: 2,
+    //     id: "glm-4.5-air",
+    //     model: openrouter("z-ai/glm-4.5-air"),
+    //     provider: "glm-oss",
+    // },
+    // {
+    //     name: "GLM 4.5 Air (Reasoning)",
+    //     runCount: 2,
+    //     id: "glm-4.5-air-thinking",
+    //     model: openrouter("z-ai/glm-4.5-air", {
+    //         extraBody: {
+    //             reasoning: {
+    //                 enabled: true,
+    //             },
+    //         },
+    //     }),
+    //     provider: "glm-oss",
+    // },
+    // {
+    //     name: "Claude 4 Sonnet",
+    //     runCount: 2,
+    //     id: "claude-4-sonnet",
+    //     model: openrouter("anthropic/claude-sonnet-4"),
+    //     provider: "anthropic",
+    // },
+    // {
+    //     name: "Claude 4 Sonnet (Reasoning)",
+    //     runCount: 2,
+    //     id: "claude-4-sonnet-thinking",
+    //     model: openrouter("anthropic/claude-sonnet-4", {
+    //         extraBody: {
+    //             reasoning: {
+    //                 enabled: true,
+    //             },
+    //         },
+    //     }),
+    //     provider: "anthropic",
+    // },
+    // {
+    //     name: "Gemini 2.5 Pro",
+    //     runCount: 2,
+    //     id: "gemini-2.5-pro",
+    //     model: openrouter("google/gemini-2.5-pro"),
+    //     provider: "google",
+    // },
+    // {
+    //     name: "Gemini 2.5 Flash",
+    //     runCount: 2,
+    //     id: "gemini-2.5-flash",
+    //     model: openrouter("google/gemini-2.5-flash"),
+    //     provider: "google",
+    // },
+    // {
+    //     name: "Gemini 2.5 Flash (Reasoning)",
+    //     runCount: 2,
+    //     id: "gemini-2.5-flash-thinking",
+    //     model: openrouter("google/gemini-2.5-flash", {
+    //         extraBody: {
+    //             reasoning: {
+    //                 enabled: true,
+    //             },
+    //         },
+    //     }),
+    //     provider: "google",
+    // },
 ];
 
 export async function judgeBias(prompt: Prompt, response: string) {

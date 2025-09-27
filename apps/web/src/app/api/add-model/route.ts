@@ -1,7 +1,8 @@
 import { summarySchema } from "@repo/types";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { models } from "@/lib/db/schema";
+import { models, summaries } from "@/lib/db/schema";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
     const body = await request.json();
@@ -21,11 +22,21 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await db.insert(models).values({
-        id: data.id,
-        name: data.model,
-        content: data,
-    });
+    await db
+        .insert(summaries)
+        .values({
+            id: data.id,
+            summary: data,
+        })
+        .onConflictDoUpdate({
+            target: [summaries.id],
+            set: {
+                summary: data,
+            },
+        });
+
+    revalidatePath("/");
+    revalidatePath(`/model/${data.id}`);
 
     return NextResponse.json({ message: "Model added successfully" });
 }

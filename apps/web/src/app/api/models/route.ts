@@ -1,19 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { models as modelsTable } from "@/lib/db/schema";
-import { getModelsResponseSchema } from "@/lib/types";
+import { summaries } from "@/lib/db/schema";
 
 export async function GET(request: NextRequest) {
-    const models = await db.select().from(modelsTable);
+    const models = await db.select().from(summaries);
 
-    return NextResponse.json(
-        getModelsResponseSchema.parse({
-            models: models.map((model) => model.content),
-        }),
+    const response = NextResponse.json(
+        models.map((model) => model.summary),
         {
             headers: {
                 "Cache-Control": "public, max-age=86400, s-maxage=86400",
             },
         },
     );
+
+    return response;
 }
